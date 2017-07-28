@@ -1,0 +1,5 @@
+.DS_Store
+
+# Ignore downloaded folders.
+externals/eigen
+externals/glew
