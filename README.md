@@ -26,11 +26,11 @@ script I provided to download and configure them.
 ## How to download:
 Open your Git shell (Windows) / terminal (Linux and macOS) and type:
 ```bash
-git clone --recursive https://github.com/dut09/graphics_codebase.git
+git clone --recursive https://github.com/mit-gfx/opengl_viewer.git
 ```
 Navigate to the folder and run the bash script corresponding to your system:
 ```bash
-cd graphics_codebase
+cd opengl_viewer
 ```
 For windows:
 ```bash
@@ -64,21 +64,21 @@ sudo apt-get install libglu1-mesa libglu1-mesa-dev
 * Use CMake to do an out-of-source build:
 ```bash
 (The root folder of this project): cd ../
-mkdir graphics_codebase_build_gcc
-cd graphics_codebase_build_gcc
-cmake ../graphics_codebase
+mkdir opengl_viewer_build_gcc
+cd opengl_viewer_build_gcc
+cmake ../opengl_viewer
 make
 cd projects/test_opengl_viewer
-./test_opengl_viewer checkerboard   
+./test_opengl_viewer checkerboard
 ```
 
 ### macOS (Sierra 10.12.3 + AppleClang 8.1.0)
 Pretty much the same as Linux except that you don't need to install libraries:
 ```bash
 cd ../
-mkdir graphics_codebase_build_mac
-cd graphics_codebase_build_mac
-cmake ../graphics_codebase
+mkdir opengl_viewer_build_gcc
+cd opengl_viewer_build_gcc
+cmake ../opengl_viewer
 make
 cd projects/test_opengl_viewer
 ./test_opengl_viewer checkerboard
@@ -114,27 +114,27 @@ project. Normally it is also the folder where your top-level `CMakeLists.txt`
 is.
 * Use git clone, git submodule or simply copy and paste to put the whole
   library folder into your own project. Assume you want to put this library in
-  a folder `YOUR_PROJECT_ROOT/externals/graphics_codebase`:
+  a folder `YOUR_PROJECT_ROOT/externals/opengl_viewer`:
   * If you are using git:
     ```bash
     cd YOUR_PROJECT_ROOT
     mkdir externals
     cd externals
-    git clone --recursive https://www.github.com/dut09/graphics_codebase.git
+    git clone --recursive https://github/mit-gfx/opengl_viewer.git
     ```
   * If you use git submodule:
     ```bash
     cd YOUR_PROJECT_ROOT
-    git submodule add https://www.github.com/dut09/graphics_codebase.git
-      externals/graphics_codebase
+    git submodule add https://github/mit-gfx/opengl_viewer.git
+      externals/opengl_viewer
     ```
 * In your root `CMakeLists.txt`, use the following command to add include
   directories:
   ```bash
-  set(GRAPHICS_CODEBASE_ROOT ${YOUR_PROJECT_ROOT}/externals/graphics_codebase)
-  add_subdirectory(${GRAPHICS_CODEBASE_ROOT})
+  set(OPENGL_VIEWER_ROOT ${YOUR_PROJECT_ROOT}/externals/opengl_viewer)
+  add_subdirectory(${OPENGL_VIEWER_ROOT})
   get_directory_property(OEPNGL_VIEWER_HEADER
-    DIRECTORY ${GRAPHICS_CODEBASE_ROOT}
+    DIRECTORY ${OPENGL_VIEWER_ROOT}
     DEFINITION OPENGL_VIEWER_HEADER)
   ```
 * In your own project, use the following command to add the include path:
