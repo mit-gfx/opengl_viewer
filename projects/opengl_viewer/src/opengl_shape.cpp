@@ -58,7 +58,7 @@ void OpenglShape::Initialize(const Eigen::Matrix3Xf& vertex_in_model,
     ? options.GetVectorOption("specular") : Eigen::Vector3f::Zero();
   // Initialize the shininess.
   shininess_ = options.HasFloatOption("shininess")
-    ? options.GetFloatOption("shininess") : 0.0f;
+    ? options.GetFloatOption("shininess") : 1.0f;
 
   // Initialize geometry.
   bool smooth_normal = true;
