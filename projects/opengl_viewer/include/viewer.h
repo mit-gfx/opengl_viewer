@@ -76,6 +76,7 @@
 #define _OPENGL_VIEWER_VIEWER_H_
 
 // OpenGL header.
+#include <unordered_map>
 #include <vector>
 #include "GL/glew.h"
 #include "glfw3.h"
@@ -116,7 +117,7 @@ public:
   // texture col num (int): the row and column number of the texture image.
   // texture mag filter (string): "linear" or "nearest". By default we use
   //   linear.
-  void AddStaticObject(
+  const int AddStaticObject(
     // Each column is a vertex in the world frame.
     const Eigen::Matrix3Xf& vertex,
     // Each column is a triangle, and must have consistent ordering.
@@ -125,12 +126,14 @@ public:
   );
   // Similar to AddStaticObject, but does not support model matrix. Instead the
   // model matrix is extracted from Animator::AnimatedModelMatrix.
-  void AddDynamicObject(
+  const int AddDynamicObject(
     const Eigen::Matrix3Xf& vertex,
     const Eigen::Matrix3Xi& face,
     Animator* const animator,
     const Option& options = Option()
   );
+  // Use the id returned by AddStaticObject/AddDynamicObject to remove it.
+  void RemoveObject(const int object_id);
 
   // Add a static point light source in the world.
   // Valid options include:
@@ -190,7 +193,8 @@ private:
 
   enum VertexAttribute { kVertex = 0, kNormal, kTexture };
 
-  std::vector<OpenglShape*> objects_;
+  std::unordered_map<int, OpenglShape*> objects_;
+  int next_object_id_;
   std::vector<OpenglLight*>point_lights_;
 
   // Mouse button states.

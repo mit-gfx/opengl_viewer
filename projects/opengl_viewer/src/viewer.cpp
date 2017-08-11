@@ -70,6 +70,7 @@ Viewer::Viewer()
   projection_matrix_(Eigen::Matrix4f::Zero()),
   vertex_array_id_(0),
   objects_(0),
+  next_object_id_(0),
   point_lights_(0),
   mouse_wheel_pressed_(false),
   mouse_cursor_last_position_(0, 0),
@@ -203,19 +204,29 @@ void Viewer::Initialize(const Option& option) {
     options_.GetPointerOption("keyboard handler"));
 }
 
-void Viewer::AddStaticObject(const Eigen::Matrix3Xf& vertex,
+const int Viewer::AddStaticObject(const Eigen::Matrix3Xf& vertex,
   const Eigen::Matrix3Xi& face, const Option& options) {
   StaticOpenglShape* new_object = new StaticOpenglShape();
   new_object->Initialize(vertex, face, options);
-  objects_.push_back(new_object);
+  objects_[next_object_id_++] = new_object;
+  return next_object_id_ - 1;
 }
 
-void Viewer::AddDynamicObject(const Eigen::Matrix3Xf& vertex,
+const int Viewer::AddDynamicObject(const Eigen::Matrix3Xf& vertex,
   const Eigen::Matrix3Xi& face, Animator* const animator,
   const Option& options) {
   DynamicOpenglShape* new_object = new DynamicOpenglShape();
   new_object->Initialize(vertex, face, animator, options);
-  objects_.push_back(new_object);
+  objects_[next_object_id_++] = new_object;
+  return next_object_id_ - 1;
+}
+
+void Viewer::RemoveObject(const int object_id) {
+  assert(object_id >= 0 && object_id < next_object_id_);
+  if (objects_.find(object_id) != objects_.end()) {
+    delete objects_[object_id];
+    objects_.erase(object_id);
+  }
 }
 
 void Viewer::AddStaticPointLight(const Eigen::Vector3f& position,
@@ -293,7 +304,8 @@ void Viewer::Run() {
       phong_shader_.SetUniform1i("shadow_map_sampler[" + std::to_string(i)
         + "]", i);
     }
-    for (const auto& object : objects_) {
+    for (const auto& pair : objects_) {
+      const OpenglShape* object = pair.second;
       phong_shader_.SetUniformMatrix4f("model_matrix",
         object->ModelMatrix(current_time));
       phong_shader_.SetUniformMatrix3f("normal_matrix",
@@ -352,8 +364,8 @@ void Viewer::Cleanup() {
   }
 
   // Clean up VBO.
-  for (const auto& object : objects_) {
-    delete object;
+  for (const auto& pair : objects_) {
+    delete pair.second;
   }
   objects_.clear();
 
@@ -467,7 +479,8 @@ void Viewer::RenderShadow(const float t) {
     const Eigen::Vector3f light_pos = light->PositionInWorld(t);
     // Analyze the distance between each static point light and objects.
     float near_plane = -1.0f, far_plane = 0.0f;
-    for (const auto& object : objects_) {
+    for (const auto& pair : objects_) {
+      const OpenglShape* object = pair.second;
       PointToBoundingBoxFrustum(light_pos, object->BoundingBoxInWorld(t),
         near_plane, far_plane);
     }
@@ -495,7 +508,8 @@ void Viewer::RenderShadow(const float t) {
     }
 
     // Now loop over all objects.
-    for (const auto& object : objects_) {
+    for (const auto& pair : objects_) {
+      const OpenglShape* object = pair.second;
       point_light_depth_shader_.SetUniformMatrix4f("model_matrix",
         object->ModelMatrix(t));
       object->BindVertexBuffer(VertexAttribute::kVertex);
