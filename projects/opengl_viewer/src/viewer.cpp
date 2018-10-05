@@ -96,6 +96,9 @@ Viewer::Viewer()
   options_.SetFloatOption("shadow acne bias", 0.005f);
   options_.SetFloatOption("shadow sampling angle", 1.0f);
 
+  // Boolean parameters.
+  options_.SetBoolOption("shadow", true);
+
   // String parameters.
   options_.SetStringOption("window name", "viewer");
 
@@ -253,10 +256,12 @@ void Viewer::Run() {
     + "/projects/opengl_viewer/shader/";
   phong_shader_.InitializeFromSource(GeneratePhongModelVertexShader(*this),
     GeneratePhongModelFragShader(*this));
+  const std::string geometry_shader = options_.GetBoolOption("shadow") ?
+    shader_folder + "geometry_point_light_depth.glsl" : "";
   point_light_depth_shader_.InitializeFromFile(
     shader_folder + "vertex_point_light_depth.glsl",
     shader_folder + "fragment_point_light_depth.glsl",
-    shader_folder + "geometry_point_light_depth.glsl");
+    geometry_shader);
 
   // Use our shader.
   phong_shader_.UseShaderProgram();
@@ -284,7 +289,9 @@ void Viewer::Run() {
 
     // Render the shadow.
     const float current_time = timer_ ? timer_->CurrentTime() : 0.0f;
-    RenderShadow(current_time);
+    if (options_.GetBoolOption("shadow")) {
+        RenderShadow(current_time);
+    }
     // Render the scene.
     glViewport(0, 0, width, height);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

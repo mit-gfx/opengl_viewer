@@ -208,6 +208,7 @@ const std::string GeneratePhongModelVertexShader(const Viewer& viewer) {
 }
 
 const std::string GeneratePhongModelFragShader(const Viewer& viewer) {
+  const bool enable_shadow = viewer.options().GetBoolOption("shadow");
   std::string source = "";
   // Version information.
   source += "#version 330 core\n";
@@ -240,8 +241,10 @@ const std::string GeneratePhongModelFragShader(const Viewer& viewer) {
     "  vec3 ambient, diffuse, specular;\n"
     "  float max_dist;\n"
     "};\n"
-    "uniform Light point_light[" + light_num_str + "];\n"
-    "uniform samplerCube shadow_map_sampler[" + light_num_str + "];\n";
+    "uniform Light point_light[" + light_num_str + "];\n";
+  if (enable_shadow)
+    source +=
+      "uniform samplerCube shadow_map_sampler[" + light_num_str + "];\n";
 
   // Material.
   source += "\n"
@@ -275,34 +278,38 @@ const std::string GeneratePhongModelFragShader(const Viewer& viewer) {
       "      * max(1.0 - dot(n, normalize(shadow_dir)), 1.0f);\n"
       "\n";
     // No need to do soft shadow if sampler_num <= 1.
-    if (shadow_sampling_number <= 1) {
-      source +=
-        "    float shadow_depth = texture(shadow_map_sampler["
-          + i_str + "], shadow_dir).r * light.max_dist;\n"
-        "    if (depth - bias <= shadow_depth) {\n"
-        "      visible[" + i_str + "] = 1.0f;\n"
-        "    } else {\n"
-        "      visible[" + i_str + "] = 0.0f;\n"
-        "    }\n";
+    if (enable_shadow) {
+      if (shadow_sampling_number <= 1) {
+        source +=
+          "    float shadow_depth = texture(shadow_map_sampler["
+            + i_str + "], shadow_dir).r * light.max_dist;\n"
+          "    if (depth - bias <= shadow_depth) {\n"
+          "      visible[" + i_str + "] = 1.0f;\n"
+          "    } else {\n"
+          "      visible[" + i_str + "] = 0.0f;\n"
+          "    }\n";
+      } else {
+        source +=
+          "    float visibility = 0.0f;\n"
+          "    float disk_radius = " + shadow_sampling_angle_str + " * depth;\n"
+          "    float step = 2.0f * disk_radius / "
+            + std::to_string(shadow_sampling_number - 1) + ";\n"
+          "    vec3 shadow_origin = shadow_dir - disk_radius * vec3(1, 1, 1);\n"
+          "    for (int i = 0; i < " + shadow_sampling_number_str + "; ++i)\n"
+          "      for (int j = 0; j < " + shadow_sampling_number_str + "; ++j)\n"
+          "        for (int k = 0; k < " + shadow_sampling_number_str + "; ++k) {\n"
+          "          vec3 sample_dir = shadow_origin + vec3(i, j, k) * step;\n"
+          "          float shadow_depth = texture(shadow_map_sampler["
+            + i_str + "], sample_dir).r * light.max_dist;\n"
+          "          if (depth - bias <= shadow_depth) {\n"
+          "            visibility += 1.0f;\n"
+          "          }\n"
+          "        }\n"
+          "    visibility /= pow(" + shadow_sampling_number_str + ", 3.0f);\n"
+          "    visible[" + i_str + "] = visibility;\n";
+      }
     } else {
-      source +=
-        "    float visibility = 0.0f;\n"
-        "    float disk_radius = " + shadow_sampling_angle_str + " * depth;\n"
-        "    float step = 2.0f * disk_radius / "
-          + std::to_string(shadow_sampling_number - 1) + ";\n"
-        "    vec3 shadow_origin = shadow_dir - disk_radius * vec3(1, 1, 1);\n"
-        "    for (int i = 0; i < " + shadow_sampling_number_str + "; ++i)\n"
-        "      for (int j = 0; j < " + shadow_sampling_number_str + "; ++j)\n"
-        "        for (int k = 0; k < " + shadow_sampling_number_str + "; ++k) {\n"
-        "          vec3 sample_dir = shadow_origin + vec3(i, j, k) * step;\n"
-        "          float shadow_depth = texture(shadow_map_sampler["
-          + i_str + "], sample_dir).r * light.max_dist;\n"
-        "          if (depth - bias <= shadow_depth) {\n"
-        "            visibility += 1.0f;\n"
-        "          }\n"
-        "        }\n"
-        "    visibility /= pow(" + shadow_sampling_number_str + ", 3.0f);\n"
-        "    visible[" + i_str + "] = visibility;\n";
+      source += "visible[" + i_str + "] = 1.0;\n";
     }
     source += "  }\n";
   }

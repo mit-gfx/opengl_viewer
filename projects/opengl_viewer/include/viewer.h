@@ -41,6 +41,7 @@
 //   where the soft shadow sampling will take place.
 //
 // Bool:
+// - shadow: true.
 //
 // String:
 // - window name: viewer.

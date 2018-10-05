@@ -33,6 +33,7 @@ void PointLightShadow() {
   option.SetVectorOption("camera up", unit_y);
   option.SetFloatOption("shadow acne bias", 0.01f);
   option.SetFloatOption("shadow sampling angle", 0.5f);
+  option.SetBoolOption("shadow", false);
   viewer.Initialize(option);
 
   // Add geometry:

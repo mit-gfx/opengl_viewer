@@ -19,7 +19,9 @@
 layout(location = 0) in vec3 vertex;
 
 uniform mat4 model_matrix;
+out vec4 fragment_position;
 
 void main() {
   gl_Position = model_matrix * vec4(vertex, 1.0f);
+  fragment_position = gl_Position;
 }
