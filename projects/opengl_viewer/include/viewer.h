@@ -125,6 +125,7 @@ public:
     const Eigen::Matrix3Xi& face,
     const Option& options = Option()
   );
+  void UpdateStaticObject(const int object_id, const Option& options);
   // Similar to AddStaticObject, but does not support model matrix. Instead the
   // model matrix is extracted from Animator::AnimatedModelMatrix.
   const int AddDynamicObject(

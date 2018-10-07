@@ -160,6 +160,19 @@ void OpenglShape::BindVertexBuffer(const int attribute_id) const {
   );
 }
 
+void OpenglShape::Update(const Option& options) {
+  // So far we only allow for the color update.
+  if (options.HasVectorOption("ambient"))
+    ambient_ = options.GetVectorOption("ambient");
+  if (options.HasVectorOption("diffuse"))
+    diffuse_ = options.GetVectorOption("diffuse");
+  if (options.HasVectorOption("specular"))
+    specular_ = options.GetVectorOption("specular");
+  if (options.HasFloatOption("shininess"))
+    shininess_ = options.GetFloatOption("shininess");
+  // TODO: allow for more options in the future.
+}
+
 void OpenglShape::BindNormalBuffer(const int attribute_id) const {
   glEnableVertexAttribArray(attribute_id);
   glBindBuffer(GL_ARRAY_BUFFER, normal_buffer_id_);

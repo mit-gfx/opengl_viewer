@@ -215,6 +215,10 @@ const int Viewer::AddStaticObject(const Eigen::Matrix3Xf& vertex,
   return next_object_id_ - 1;
 }
 
+void Viewer::UpdateStaticObject(const int object_id, const Option& options) {
+  objects_[object_id]->Update(options);
+}
+
 const int Viewer::AddDynamicObject(const Eigen::Matrix3Xf& vertex,
   const Eigen::Matrix3Xi& face, Animator* const animator,
   const Option& options) {

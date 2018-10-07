@@ -30,6 +30,7 @@ public:
 
   void Initialize(const Eigen::Matrix3Xf& vertex_in_model,
     const Eigen::Matrix3Xi& face, const Option& options = Option());
+  void Update(const Option& options);
 
   const Eigen::Matrix3Xf vertex_in_model() const { return vertex_in_model_; }
   const BoundingBox bounding_box_in_model() const {
