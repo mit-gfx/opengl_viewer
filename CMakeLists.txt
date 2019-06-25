@@ -4,6 +4,7 @@ cmake_minimum_required(VERSION 3.1)
 # Do not want to generate zeor_check because they cause messy folders in
 # visual studio 2017.
 set(CMAKE_SUPPRESS_REGENERATION true)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 set(CMAKE_CXX_STANDARD 11)
 

@@ -1,1 +1,1 @@
-python3 install_option.py build_ext --inplace
+python3 install_viewer.py build_ext --inplace

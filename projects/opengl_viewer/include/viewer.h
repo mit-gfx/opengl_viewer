@@ -125,6 +125,12 @@ public:
     const Eigen::Matrix3Xi& face,
     const Option& options = Option()
   );
+  // For Python Binding.
+  const int AddStaticObject(
+    const std::vector<std::vector<float>>& vertex,
+    const std::vector<std::vector<int>>& face,
+    const Option& options = Option()
+  );
   void UpdateStaticObject(const int object_id, const Option& options);
   // Similar to AddStaticObject, but does not support model matrix. Instead the
   // model matrix is extracted from Animator::AnimatedModelMatrix.
@@ -145,6 +151,11 @@ public:
   // depth map size (int): 1024 by default.
   void AddStaticPointLight(
     const Eigen::Vector3f& position,
+    const Option& options = Option()
+  );
+  // For Python Binding.
+  void AddStaticPointLight(
+    const std::vector<float>& position,
     const Option& options = Option()
   );
   // Same as above. The position is extracted from the animator.

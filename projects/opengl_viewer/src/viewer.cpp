@@ -215,6 +215,23 @@ const int Viewer::AddStaticObject(const Eigen::Matrix3Xf& vertex,
   return next_object_id_ - 1;
 }
 
+const int Viewer::AddStaticObject(
+    const std::vector<std::vector<float>>& vertex,
+    const std::vector<std::vector<int>>& face,
+    const Option& options) {
+  const int v_num = static_cast<int>(vertex[0].size());
+  const int f_num = static_cast<int>(face[0].size());
+  Eigen::Matrix3Xf vertices(3, v_num);
+  Eigen::Matrix3Xi faces(3, f_num);
+  for (int i = 0; i < 3; ++i)
+    for (int j = 0; j < v_num; ++j)
+      vertices(i, j) = vertex[i][j];
+  for (int i = 0; i < 3; ++i)
+    for (int j = 0; j < f_num; ++j)
+      faces(i, j) = face[i][j];
+  return AddStaticObject(vertices, faces, options);
+}
+
 void Viewer::UpdateStaticObject(const int object_id, const Option& options) {
   objects_[object_id]->Update(options);
 }
@@ -243,6 +260,14 @@ void Viewer::AddStaticPointLight(const Eigen::Vector3f& position,
     light->Initialize(position, options);
     point_lights_.push_back(light);
   }
+}
+
+// For Python Binding.
+void Viewer::AddStaticPointLight(const std::vector<float>& position,
+  const Option& options) {
+  Eigen::Vector3f pos;
+  for (int i = 0; i < 3; ++i) pos(i) = position[i];
+  AddStaticPointLight(pos, options);
 }
 
 void Viewer::AddDynamicPointLight(Animator* const animator,
