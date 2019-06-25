@@ -20,6 +20,7 @@
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
+#include <vector>
 #include "Eigen/Dense"
 
 namespace opengl_viewer {
@@ -129,6 +130,11 @@ public:
   void SetVectorOption(const std::string& name, const Eigen::VectorXf& value) {
     vector_options_[name] = value;
   }
+  void SetVectorOption(const std::string& name, const std::vector<float>& value) {
+    Eigen::VectorXf val(value.size());
+    for (auto i = 0; i < val.size(); ++i) val(i) = value[i];
+    SetVectorOption(name, val);
+  }
   // More convenient way for initialization.
   void SetVectorOption(const std::string& name,
     const float x, const float y) {
@@ -152,6 +158,11 @@ public:
   const Eigen::VectorXf GetVectorOption(const std::string& name) const {
     return vector_options_.at(name);
   }
+  // For Python binding only.
+  const std::vector<float> GetVectorOptionPyBinding(const std::string& name) const {
+    const Eigen::VectorXf val = GetVectorOption(name);
+    return std::vector<float>(val.data(), val.data() + val.size());
+  }
   const std::unordered_set<std::string> GetAllVectorOptionNames() const {
     std::unordered_set<std::string> name;
     for (const auto& pair : vector_options_) {
@@ -164,6 +175,13 @@ public:
   void SetMatrixOption(const std::string& name, const Eigen::MatrixXf& value) {
     matrix_options_[name] = value;
   }
+  void SetMatrixOption(const std::string& name, const std::vector<std::vector<float>>& value) {
+    Eigen::MatrixXf val(value.size(), value[0].size());
+    for (int i = 0; i < static_cast<int>(value.size()); ++i)
+      for (int j = 0; j < static_cast<int>(value[0].size()); ++j)
+        val(i, j) = value[i][j];
+    matrix_options_[name] = val;
+  }
   void ClearMatrixOption(const std::string& name) {
     matrix_options_.erase(name);
   }
@@ -173,6 +191,14 @@ public:
   }
   const Eigen::MatrixXf GetMatrixOption(const std::string& name) const {
     return matrix_options_.at(name);
+  }
+  const std::vector<std::vector<float>> GetMatrixOptionPyBinding(const std::string& name) const {
+    const Eigen::MatrixXf val = matrix_options_.at(name);
+    std::vector<std::vector<float>> value(val.rows(), std::vector<float>(val.cols(), 0));
+    for (int i = 0; i < static_cast<int>(val.rows()); ++i)
+      for (int j = 0; j < static_cast<int>(val.cols()); ++j)
+        value[i][j] = val(i, j);
+    return value;
   }
   const std::unordered_set<std::string> GetAllMatrixOptionNames() const {
     std::unordered_set<std::string> name;
