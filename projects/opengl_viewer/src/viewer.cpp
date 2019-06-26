@@ -160,6 +160,9 @@ void Viewer::Initialize(const Option& option) {
   glfwMakeContextCurrent(window_);
 
   // Initialize GLEW.
+  // Enabling experimental features to resolve seg faults.
+  // https://stackoverflow.com/questions/8302625/segmentation-fault-at-glgenvertexarrays-1-vao
+  glewExperimental = GL_TRUE;
   if (glewInit() != GLEW_OK) {
     glfwTerminate();
     exit(0);
