@@ -66,7 +66,7 @@ cdef class PyglOption:
                   'camera zoom speed', 'shadow acne bias', 'shadow sampling angle',
                   'shininess']:
       self.set_float_option(name, float(value))
-    elif name in ['shadow']:
+    elif name in ['shadow', 'smooth normal']:
       self.set_bool_option(name, value)
     elif name in ['window name', 'texture mag filter']:
       self.set_string_option(name, str(value))
@@ -91,7 +91,7 @@ cdef class PyglOption:
                   'camera zoom speed', 'shadow acne bias', 'shadow sampling angle',
                   'shininess']:
       return float(self.get_float_option(name))
-    elif name in ['shadow']:
+    elif name in ['shadow', 'smooth normal']:
       return self.get_bool_option(name)
     elif name in ['window name', 'texture mag filter']:
       return str(self.get_string_option(name))

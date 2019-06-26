@@ -9,7 +9,7 @@ option["width"] = 1024
 option["shadow acne bias"] = 0.005
 option["shadow sampling angle"] = 0.57
 option["shadow sampling number"] = 2
-option["shadow"] = True
+option["shadow"] = False
 
 viewer = PyglViewer(option)
 
@@ -65,7 +65,7 @@ viewer.add_static_point_light(light_pos, light_option)
 cube = trimesh.load("../resources/meshes/cube.obj")
 cube_option = PyglOption()
 cube_option["model matrix"] = [[0.6, 0, 0, 0],
-                               [0, 0.6, 0, 0],
+                               [0, 0.6, 0, 0.65],
                                [0, 0, 0.6, 0],
                                [0, 0, 0, 1]]
 cube_option["ambient"] = [0.12, 0.33, 0.17]
@@ -76,7 +76,7 @@ max_frames = 1024
 animator = PyglSamplingAnimator(max_frames)
 for i in range(max_frames):
   mat = [[1, 0, 0, np.sin((i / fps / 4.0) * np.pi * 2.0)],
-         [0, 1, 0, 0],
+         [0, 1, 0, 0.65],
          [0, 0, 1, 0],
          [0, 0, 0, 1]]
   animator.add_sample(i / fps, mat)

@@ -30,7 +30,7 @@ public:
 
   void AddSample(const float t, const Eigen::Matrix4f& transform) {
     samples_[t] = transform;
-    while (static_cast<int>(samples_.size()) > sample_buffer_)
+    while (sample_buffer_ >= 0 && static_cast<int>(samples_.size()) > sample_buffer_)
       samples_.erase(samples_.begin());
   }
 
