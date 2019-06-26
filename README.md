@@ -51,8 +51,8 @@ For macOS:
 ## How to build
 
 ### Windows (Windows 10 64bit + Visual Studio 2017)
+* Create an empyt `build` folder under the root directory of this project.
 * Open CMake and set this folder as the source folder.
-* Out-of-source build is recommended.
 * Click "Configure", then "Generate", then "Open Project".
 * Press `F7` to build. Hopefully no errors will occur.
 * Run `test_opengl_viewer` with proper input arguments (you can find them in
@@ -64,12 +64,11 @@ For macOS:
 sudo apt-get install libgl1-mesa-dev mesa-common-dev xorg-dev
 sudo apt-get install libglu1-mesa libglu1-mesa-dev
 ```
-* Use CMake to do an out-of-source build:
+* Use CMake to build (assuming you are in the root directory):
 ```bash
-(The root folder of this project): cd ../
-mkdir opengl_viewer_build_gcc
-cd opengl_viewer_build_gcc
-cmake ../opengl_viewer
+mkdir build
+cd build
+cmake ../
 make
 cd projects/test_opengl_viewer
 ./test_opengl_viewer checkerboard
@@ -78,13 +77,27 @@ cd projects/test_opengl_viewer
 ### macOS (Sierra 10.12.3 + AppleClang 8.1.0)
 Pretty much the same as Linux except that you don't need to install libraries:
 ```bash
-cd ../
-mkdir opengl_viewer_build_gcc
-cd opengl_viewer_build_gcc
-cmake ../opengl_viewer
+mkdir build
+cd build
+cmake ../
 make
 cd projects/test_opengl_viewer
 ./test_opengl_viewer checkerboard
+```
+
+### (Optional) Python binding
+(This has only been tested on Ubuntu 16.04.)
+
+Navigate to the root folder, then
+```bash
+cd python
+./install.sh
+```
+You can then run some example scripts:
+```bash
+python example_cornell_box.py
+python example_checkerboard.py
+python example_monocopter.py
 ```
 
 ## How to use
