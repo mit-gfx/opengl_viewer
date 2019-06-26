@@ -1,5 +1,35 @@
 import numpy as np
+import sys
+import os
+import imageio
+import skvideo.io
+from datetime import datetime
 from pygl_viewer import *
+
+def export_gif(gif_name, folder, format='{:d}.png'):
+  images = []
+  frame_idx = 0
+  while True:
+    frame_name = os.path.join(folder, format.format(frame_idx))
+    if not os.path.exists(frame_name):
+      imageio.mimsave(gif_name, images)
+      break
+    else:
+      images.append(imageio.imread(frame_name))
+      frame_idx += 1
+
+def export_mp4(mp4_name, folder, format='{:d}.png'):
+  images = []
+  frame_idx = 0
+  while True:
+    frame_name = os.path.join(folder, format.format(frame_idx))
+    if not os.path.exists(frame_name):
+      images = np.array(images)
+      skvideo.io.vwrite(mp4_name, images)
+      break
+    else:
+      images.append(imageio.imread(frame_name))
+      frame_idx += 1
 
 class PyglShape(object):
   def __init__(self, vertex, face, transform, color):
@@ -46,8 +76,18 @@ class PyglShape(object):
     self.animator.add_sample(time, mat)
 
 class PyglWindow(object):
-  def __init__(self, fps):
+  def __init__(self, name, fps, xyz='xyz', record=False):
     self.shapes = []
+
+    # For recording data.
+    self.name = name
+    self.record_folder = None
+    if record:
+      # Create a folder.
+      now = datetime.now()
+      folder = name + '_%d_%d_%d_%d_%d_%d' % (now.year, now.month, now.day, now.hour, now.minute, now.second)
+      os.makedirs(folder, exist_ok=True)
+      self.record_folder = folder
 
     # Initialize the viewer.
     option = PyglOption()
@@ -55,15 +95,25 @@ class PyglWindow(object):
     option["width"] = 1600
     option["background color"] = [0.86, 0.88, 0.90, 1.0]
     option["camera aspect ratio"] = 1600 / 1000
-    option["camera pos"] = [-1.6, -0.8, -1.6]
-    option["camera look at"] = [0.8, -0.5, 0.0]
-    option["camera up"] = [0.0, 0.0, -1.0]
+    if xyz == 'ned':
+      option["camera pos"] = [-1, -0.25, -0.8]
+      option["camera look at"] = [0.2, -0.1, 0.0]
+      option["camera up"] = [0.0, 0.0, -1.0]
+    elif xyz == 'xyz':
+      option["camera pos"] = [-0.25, 0.8, 1]
+      option["camera look at"] = [-0.1, 0, -0.2]
+      option["camera up"] = [0, 1, 0]
+    else:
+      print('Unsupported xyz coordinates:', xyz)
+      sys.exit(0)
     option["camera pan speed"] = 0.004
     option["camera field of view"] = 45
+    option["record folder"] = '' if self.record_folder is None else self.record_folder
     option["shadow acne bias"] = 0.005
     option["shadow sampling angle"] = 0.2
     option["shadow sampling number"] = 2
     option["shadow"] = False
+    option["window name"] = name
 
     self.viewer = PyglViewer(option)
     self.viewer.register_linear_timer(fps)
@@ -136,3 +186,11 @@ class PyglWindow(object):
         self.viewer.add_dynamic_object(shape.vertex, shape.face, shape.animator, shape.option)
     self.viewer.run()
     self.viewer.cleanup()
+
+  def export_video(self, name):
+    if '.gif' in name:
+      export_gif(name, self.record_folder)
+    elif '.mov' in name:
+      export_mp4(name, self.record_folder)
+    else:
+      print('Unsupported video name:', name)

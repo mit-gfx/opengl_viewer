@@ -2,6 +2,9 @@ Author: Tao Du. PhD student at MIT CSAIL.
 
 Email: taodu@csail.mit.edu
 
+## Gallery
+<img src="resources/pictures/monocopter.gif"/>
+
 ## Contents
 * `externals/`
 None of them are included by default. You need to use git submodule AND the

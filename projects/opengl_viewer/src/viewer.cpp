@@ -19,9 +19,14 @@
 #include "imgui_wrapper.h"
 #include <iostream>
 #include <fstream>
+
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb_image_write.h"
+
 #include "dynamic_opengl_light.h"
 #include "dynamic_opengl_shape.h"
 #include "geometry.h"
+#include "image.h"
 #include "keyboard_handler.h"
 #include "linear_timer.h"
 #include "mouse_handler.h"
@@ -102,6 +107,7 @@ Viewer::Viewer()
   options_.SetBoolOption("shadow", true);
 
   // String parameters.
+  options_.SetStringOption("record folder", "");
   options_.SetStringOption("window name", "viewer");
 
   // Vector parameters.
@@ -331,6 +337,8 @@ void Viewer::Run() {
     static_cast<int>(point_lights_.size());
 
   // Loop.
+  int frame_idx = -1;
+  float last_time = -1.0f;
   do {
     // Setup ImGui.
     if (imgui_wrapper_) {
@@ -345,6 +353,12 @@ void Viewer::Run() {
 
     // Render the shadow.
     const float current_time = timer_ ? timer_->CurrentTime() : 0.0f;
+    // Update frame count.
+    if (current_time > last_time) {
+      ++frame_idx;
+    }
+    last_time = current_time;
+
     if (options_.GetBoolOption("shadow")) {
         RenderShadow(current_time);
     }
@@ -409,6 +423,26 @@ void Viewer::Run() {
 
     // Swap buffers.
     glfwSwapBuffers(window_);
+    const std::string record_folder = options_.GetStringOption("record folder");
+    if (!record_folder.empty()) {
+      // Save screenshots.
+      const GLenum format = GL_RGB;
+      const int pixel_nbytes = 3;
+      std::vector<GLubyte> pixels(pixel_nbytes * width * height);
+      glReadPixels(0, 0, width, height, format, GL_UNSIGNED_BYTE, pixels.data());
+      // Flip pixels in place.
+      for (int i = 0; i < height / 2; ++i)
+        for (int j = 0; j < width; ++j)
+          for (int k = 0; k < 3; ++k) {
+            const int old_pixel = pixel_nbytes * (i * width + j) + k;
+            const int new_pixel = pixel_nbytes * ((height - 1 - i) * width + j) + k;
+            GLubyte color = pixels[old_pixel];
+            pixels[old_pixel] = pixels[new_pixel];
+            pixels[new_pixel] = color;
+          }
+      const std::string png_name = record_folder + "/" + std::to_string(frame_idx) + ".png";
+      stbi_write_png(png_name.c_str(), width, height, pixel_nbytes, pixels.data(), pixel_nbytes * width);
+    }
     glfwPollEvents();
   } while (glfwGetKey(window_, GLFW_KEY_ESCAPE) != GLFW_PRESS
     && glfwWindowShouldClose(window_) == 0);

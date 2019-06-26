@@ -68,7 +68,7 @@ cdef class PyglOption:
       self.set_float_option(name, float(value))
     elif name in ['shadow', 'smooth normal']:
       self.set_bool_option(name, value)
-    elif name in ['window name', 'texture mag filter']:
+    elif name in ['record folder', 'window name', 'texture mag filter']:
       self.set_string_option(name, str(value))
     elif name in ['background color', 'camera look at', 'camera pos', 'camera up']:
       self.set_vector_option(name, np.array(value, dtype=np.float32))
@@ -93,7 +93,7 @@ cdef class PyglOption:
       return float(self.get_float_option(name))
     elif name in ['shadow', 'smooth normal']:
       return self.get_bool_option(name)
-    elif name in ['window name', 'texture mag filter']:
+    elif name in ['record folder', 'window name', 'texture mag filter']:
       return str(self.get_string_option(name))
     elif name in ['background color', 'camera look at', 'camera pos', 'camera up']:
       return np.array(self.get_vector_option(name), dtype=np.float32)
