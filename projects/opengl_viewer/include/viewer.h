@@ -92,6 +92,7 @@ class KeyboardHandler;
 class MouseHandler;
 class OpenglLight;
 class OpenglShape;
+class SamplingAnimator;
 class Timer;
 
 class Viewer {
@@ -99,6 +100,9 @@ public:
   static Viewer& GetViewer();
 
   void Initialize(const Option& option);
+
+  // For Python binding only.
+  void RegisterLinearTimer(const int fps);
 
   // Use AddStaticObject to add an object that does not change during
   // visualization. For example: the ground of your virtual world.
@@ -138,6 +142,13 @@ public:
     const Eigen::Matrix3Xf& vertex,
     const Eigen::Matrix3Xi& face,
     Animator* const animator,
+    const Option& options = Option()
+  );
+  // For Python Binding.
+  const int AddDynamicObject(
+    const std::vector<std::vector<float>>& vertex,
+    const std::vector<std::vector<int>>& face,
+    SamplingAnimator* const animator,
     const Option& options = Option()
   );
   // Use the id returned by AddStaticObject/AddDynamicObject to remove it.

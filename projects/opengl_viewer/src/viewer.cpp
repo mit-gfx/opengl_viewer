@@ -23,7 +23,9 @@
 #include "dynamic_opengl_shape.h"
 #include "geometry.h"
 #include "keyboard_handler.h"
+#include "linear_timer.h"
 #include "mouse_handler.h"
+#include "sampling_animator.h"
 #include "static_opengl_light.h"
 #include "static_opengl_shape.h"
 #include "timer.h"
@@ -113,6 +115,13 @@ Viewer::Viewer()
   options_.SetPointerOption("keyboard handler", NULL);
   options_.SetPointerOption("mouse handler", NULL);
   options_.SetPointerOption("timer", NULL);
+}
+
+void Viewer::RegisterLinearTimer(const int fps) {
+  // TODO: fix this memory leak.
+  LinearTimer* linear_timer = new LinearTimer();
+  linear_timer->Initialize(fps);
+  timer_ = dynamic_cast<Timer*>(linear_timer);
 }
 
 void Viewer::Initialize(const Option& option) {
@@ -216,9 +225,9 @@ const int Viewer::AddStaticObject(const Eigen::Matrix3Xf& vertex,
 }
 
 const int Viewer::AddStaticObject(
-    const std::vector<std::vector<float>>& vertex,
-    const std::vector<std::vector<int>>& face,
-    const Option& options) {
+  const std::vector<std::vector<float>>& vertex,
+  const std::vector<std::vector<int>>& face,
+  const Option& options) {
   const int v_num = static_cast<int>(vertex[0].size());
   const int f_num = static_cast<int>(face[0].size());
   Eigen::Matrix3Xf vertices(3, v_num);
@@ -243,6 +252,24 @@ const int Viewer::AddDynamicObject(const Eigen::Matrix3Xf& vertex,
   new_object->Initialize(vertex, face, animator, options);
   objects_[next_object_id_++] = new_object;
   return next_object_id_ - 1;
+}
+
+const int Viewer::AddDynamicObject(
+  const std::vector<std::vector<float>>& vertex,
+  const std::vector<std::vector<int>>& face,
+  SamplingAnimator* const animator,
+  const Option& options) {
+  const int v_num = static_cast<int>(vertex[0].size());
+  const int f_num = static_cast<int>(face[0].size());
+  Eigen::Matrix3Xf vertices(3, v_num);
+  Eigen::Matrix3Xi faces(3, f_num);
+  for (int i = 0; i < 3; ++i)
+    for (int j = 0; j < v_num; ++j)
+      vertices(i, j) = vertex[i][j];
+  for (int i = 0; i < 3; ++i)
+    for (int j = 0; j < f_num; ++j)
+      faces(i, j) = face[i][j];
+  return AddDynamicObject(vertices, faces, dynamic_cast<Animator*>(animator), options);
 }
 
 void Viewer::RemoveObject(const int object_id) {
