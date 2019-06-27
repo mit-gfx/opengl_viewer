@@ -49,6 +49,10 @@ class PyglShape(object):
       color3 = [1, 1, 1]
     elif color == 'y':
       color3 = [1, 1, 0]
+    elif color == 'm':
+      color3 = [1, 0, 1]
+    elif color == 'c':
+      color3 = [0, 1, 1]
     else:
       color3 = np.array(color, dtype=np.float32)
 
@@ -177,6 +181,182 @@ class PyglWindow(object):
     shape = PyglShape(vertex, face, mat, color)
     self.shapes.append(shape)
     return self.shapes[-1]
+
+  def render_sphere(self, center=[0, 0, 0], radius=1,
+                    translation=[0, 0, 0],
+                    rotation=np.eye(3),
+                    scaling=1,
+                    color='r'):
+    center = np.array(center, dtype=np.float32)
+    # theta \in [0, 2pi], phi \in [-pi / 2, pi / 2].
+    theta_num = 16
+    phi_num = 8
+    dtheta = 2.0 * np.pi / theta_num
+    dphi = np.pi / phi_num
+    vertices = np.zeros((theta_num * (phi_num - 1) + 2, 3))
+    faces = np.zeros((theta_num * 2 + (phi_num - 2) * theta_num * 2, 3), dtype=np.int)
+    vertices[0] = [0.0, 0.0, 1.0]
+    for i in range(theta_num):
+      vertices[1 + i] = [
+        np.cos(np.pi / 2.0 - dphi) * np.cos(i * dtheta),
+        np.cos(np.pi / 2.0 - dphi) * np.sin(i * dtheta),
+        np.sin(np.pi / 2.0 - dphi)
+      ]
+      faces[i] = [0, i + 1, i + 2]
+    faces[theta_num - 1, 2] = 1
+
+    for i in range(phi_num - 2):
+      phi = np.pi / 2.0 - dphi * (i + 2)
+      for j in range(theta_num):
+        vertices[1 + theta_num * (i + 1) + j] = [
+          np.cos(phi) * np.cos(j * dtheta),
+          np.cos(phi) * np.sin(j * dtheta),
+          np.sin(phi)
+        ]
+        faces[theta_num * (2 * i + 1) + 2 * j] = [
+          1 + theta_num * (i + 1) + j,
+          1 + theta_num * (i + 1) + j + 1,
+          1 + theta_num * i + j
+        ]
+        faces[theta_num * (2 * i + 1) + 2 * j + 1] = [
+          1 + theta_num * (i + 1) + j + 1,
+          1 + theta_num * i + j + 1,
+          1 + theta_num * i + j
+        ]
+      faces[theta_num * (2 * i + 3) - 2, 1] = 1 + theta_num * (i + 1)
+      faces[theta_num * (2 * i + 3) - 1, 0] = 1 + theta_num * (i + 1)
+      faces[theta_num * (2 * i + 3) - 1, 1] = 1 + theta_num * i
+    vertices[1 + theta_num * (phi_num - 1)] = [0.0, 0.0, -1.0]
+
+    for i in range(theta_num):
+      faces[theta_num * (2 * phi_num - 3) + i] = [
+        1 + theta_num * (phi_num - 2) + i + 1,
+        1 + theta_num * (phi_num - 2) + i,
+        1 + theta_num * (phi_num - 1)
+      ]
+    faces[2 * theta_num * (phi_num - 1) - 1, 0] = 1 + theta_num * (phi_num - 2)
+    vertices = vertices * radius + center
+    return self.render_shape(vertices, faces, translation, rotation, scaling, color)
+
+  def render_cylinder(self, center, dir, radius, height,
+                      translation=[0, 0, 0],
+                      rotation=np.eye(3),
+                      scaling=1,
+                      color='r'):
+    center = np.array(center, dtype=np.float32)
+    dir = np.array(dir, dtype=np.float32)
+
+    # Create a local coordinate.
+    xyz = [np.array([1.0, 0.0, 0.0]), np.array([0.0, 1.0, 0.0]), np.array([0.0, 0.0, 1.0])]
+    x = xyz[np.argmax([np.linalg.norm(np.cross(n, dir)) for n in xyz])]
+    x = np.cross(x, dir)
+    x /= np.linalg.norm(x)
+    y = np.cross(dir, x)
+
+    n = 6
+    d = np.pi * 2.0 / n
+    vertices = [center + dir * height / 2.0, center - dir * height / 2.0]
+    faces = []
+    for i in range(n):
+      v = (np.cos(d * i) * x + np.sin(d * i) * y) * radius
+      vertices.append(vertices[0] + v)
+      vertices.append(vertices[1] + v)
+      i00 = 2 + i * 2 + 1
+      i01 = 2 + (i * 2 + 3) % (2 * n)
+      i10 = 2 + i * 2
+      i11 = 2 + (i * 2 + 2) % (2 * n)
+      faces.append([i00, i01, i10])
+      faces.append([i10, i01, i11])
+      faces.append([i10, i11, 0])
+      faces.append([i01, i00, 1])
+    vertices = np.array(vertices, dtype=np.float64)
+    faces = np.array(faces)
+    return self.render_shape(vertices, faces, translation, rotation, scaling, color)
+
+  def render_cube(self, center, size,
+                  translation=[0, 0, 0],
+                  rotation=np.eye(3),
+                  scaling=1, color='r'):
+    vertices = np.array([
+      [-0.5, -0.5, -0.5],
+      [-0.5, -0.5, 0.5],
+      [-0.5, 0.5, -0.5],
+      [-0.5, 0.5, 0.5],
+      [0.5, -0.5, -0.5],
+      [0.5, -0.5, 0.5],
+      [0.5, 0.5, -0.5],
+      [0.5, 0.5, 0.5]
+    ]) * size + center
+    faces = np.array([
+      [0, 2, 6],
+      [0, 6, 4],
+      [1, 5, 7],
+      [1, 7, 3],
+      [7, 5, 4],
+      [7, 4, 6],
+      [3, 7, 6],
+      [3, 6, 2],
+      [1, 3, 2],
+      [1, 2, 0],
+      [1, 0, 4],
+      [1, 4, 5]
+    ])
+    return self.render_shape(vertices, faces, translation, rotation, scaling, color)
+
+  def render_arrow(self, tip, tail, radius=0.012, tip_length=0.15, tip_radius=0.024,
+                   translation=[0, 0, 0],
+                   rotation=np.eye(3),
+                   scaling=1, color='r'):
+    tip = np.array(tip, dtype=np.float32)
+    tail = np.array(tail, dtype=np.float32)
+    dir = tip - tail
+    height = np.linalg.norm(dir)
+    dir /= height
+    # Draw the cylinder.
+    cylinder_height = height - tip_length
+    cylinder = self.render_cylinder(center=tail + dir * cylinder_height / 2.0, dir=dir, radius=radius,
+                                    height=cylinder_height, translation=translation, rotation=rotation,
+                                    scaling=scaling, color=color)
+    del self.shapes[-1]
+    # Draw the cone.
+    cone = self.render_cone(center=tail + dir * cylinder_height, dir=dir, radius=tip_radius, height=tip_length,
+                            translation=translation, rotation=rotation, scaling=scaling, color=color)
+    del self.shapes[-1]
+    # Assemble the arrow.
+    v_cylinder, f_cylinder = cylinder.vertex, cylinder.face
+    v_cone, f_cone = cone.vertex, cone.face
+    v_arrow = np.vstack([v_cylinder, v_cone])
+    f_arrow = np.vstack([f_cylinder, f_cone + v_cylinder.shape[0]])
+    return self.render_shape(v_arrow, f_arrow, translation, rotation, scaling, color)
+
+  def render_cone(self, center, dir, radius, height,
+                  translation=[0, 0, 0],
+                  rotation=np.eye(3),
+                  scaling=1,
+                  color='r'):
+    center = np.array(center, dtype=np.float32)
+    dir = np.array(dir, dtype=np.float32)
+
+    # Create a local coordinate.
+    xyz = [np.array([1.0, 0.0, 0.0]), np.array([0.0, 1.0, 0.0]), np.array([0.0, 0.0, 1.0])]
+    x = xyz[np.argmax([np.linalg.norm(np.cross(n, dir)) for n in xyz])]
+    x = np.cross(x, dir)
+    x /= np.linalg.norm(x)
+    y = np.cross(dir, x)
+
+    n = 6
+    d = np.pi * 2.0 / n
+    vertices = [center, center + height * dir]
+    faces = []
+    for i in range(n):
+      p = center + radius * (np.cos(d * i) * x + np.sin(d * i) * y)
+      vertices.append(p)
+      j = (i + 1) % n
+      faces.append([0, j + 2, i + 2])
+      faces.append([i + 2, j + 2, 1])
+    vertices = np.array(vertices, dtype=np.float64)
+    faces = np.array(faces)
+    return self.render_shape(vertices, faces, translation, rotation, scaling, color)
 
   def show(self):
     for shape in self.shapes:
