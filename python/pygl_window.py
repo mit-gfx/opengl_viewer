@@ -120,7 +120,7 @@ class PyglWindow(object):
     option["window name"] = name
 
     self.viewer = PyglViewer(option)
-    self.viewer.register_linear_timer(fps)
+    self.viewer.register_pybinding_default_components(fps)
 
     # Add ground.
     checker_size = 2

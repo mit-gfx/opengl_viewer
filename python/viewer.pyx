@@ -224,7 +224,7 @@ cdef extern from "../projects/opengl_viewer/include/viewer.h" namespace "opengl_
                          SamplingAnimator* animator, Option& option)
     void AddStaticPointLight(vector[float]& position, Option& option)
 
-    void RegisterLinearTimer(int fps)
+    void RegisterPyBindingDefaultComponents(int fps)
 
     void Run()
     void Cleanup()
@@ -256,8 +256,8 @@ cdef class PyglViewer:
     position = np.array(position, dtype=np.float32)
     self.instance.AddStaticPointLight(position.tolist(), (<PyglOption?>option).instance)
 
-  def register_linear_timer(self, fps):
-    self.instance.RegisterLinearTimer(fps)
+  def register_pybinding_default_components(self, fps):
+    self.instance.RegisterPyBindingDefaultComponents(fps)
 
   def run(self):
     self.instance.Run()

@@ -28,8 +28,9 @@
 #include "geometry.h"
 #include "image.h"
 #include "keyboard_handler.h"
-#include "linear_timer.h"
 #include "mouse_handler.h"
+#include "pybinding_default_keyboard_handler.h"
+#include "pybinding_default_timer.h"
 #include "sampling_animator.h"
 #include "static_opengl_light.h"
 #include "static_opengl_shape.h"
@@ -123,11 +124,14 @@ Viewer::Viewer()
   options_.SetPointerOption("timer", NULL);
 }
 
-void Viewer::RegisterLinearTimer(const int fps) {
+void Viewer::RegisterPyBindingDefaultComponents(const int fps) {
   // TODO: fix this memory leak.
-  LinearTimer* linear_timer = new LinearTimer();
-  linear_timer->Initialize(fps);
-  timer_ = dynamic_cast<Timer*>(linear_timer);
+  PyBindingDefaultKeyboardHandler* keyboard = new PyBindingDefaultKeyboardHandler();
+  PyBindingDefaultTimer* timer = new PyBindingDefaultTimer();
+  timer->Initialize(fps, keyboard);
+
+  keyboard_handler_ = dynamic_cast<KeyboardHandler*>(keyboard);
+  timer_ = dynamic_cast<Timer*>(timer);
 }
 
 void Viewer::Initialize(const Option& option) {

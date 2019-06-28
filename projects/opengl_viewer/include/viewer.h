@@ -102,7 +102,8 @@ public:
   void Initialize(const Option& option);
 
   // For Python binding only.
-  void RegisterLinearTimer(const int fps);
+  // This sets up default timer, keyboard handlerm, etc.
+  void RegisterPyBindingDefaultComponents(const int fps);
 
   // Use AddStaticObject to add an object that does not change during
   // visualization. For example: the ground of your virtual world.

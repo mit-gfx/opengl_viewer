@@ -14,7 +14,7 @@ option["shadow"] = False
 viewer = PyglViewer(option)
 
 fps = 25
-viewer.register_linear_timer(fps)
+viewer.register_pybinding_default_components(fps)
 
 checker_size = 512
 square_size = 32
