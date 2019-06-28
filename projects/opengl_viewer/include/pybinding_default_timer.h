@@ -35,8 +35,13 @@ public:
   }
 
   const float CurrentTime() {
+    if (keyboard_handler_->reset()) {
+      current_time_ = 0;
+      keyboard_handler_->set_reset(false);
+    }
+    const float current_time = current_time_;
     if (!keyboard_handler_->paused()) current_time_ += dt_;
-    return current_time_;
+    return current_time;
   }
 
 private:

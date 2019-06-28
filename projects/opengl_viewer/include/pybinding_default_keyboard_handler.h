@@ -24,18 +24,23 @@ namespace opengl_viewer {
 class PyBindingDefaultKeyboardHandler : public KeyboardHandler {
 public:
   PyBindingDefaultKeyboardHandler()
-  : KeyboardHandler(), paused_(false) {}
+  : KeyboardHandler(), paused_(false), reset_(false) {}
 
   void Initialize(const bool paused) { paused_ = paused; }
 
   void KeyCallback(const int key, const int action) {
     if (key == GLFW_KEY_P && action == GLFW_PRESS) paused_ = !paused_;
+
+    if (key == GLFW_KEY_R && action == GLFW_PRESS) reset_ = true;
   }
 
   const bool paused() const { return paused_; }
+  const bool reset() const { return reset_; }
+  void set_reset(const bool reset) { reset_ = reset; }
 
 private:
   bool paused_;
+  bool reset_;
 };
 
 }
