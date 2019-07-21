@@ -200,7 +200,7 @@ cdef class PyglOption:
 cdef extern from "../projects/opengl_viewer/include/sampling_animator.h" namespace "opengl_viewer":
   cdef cppclass SamplingAnimator:
     SamplingAnimator(int sample_buffer) except +
-    void AddSample(float t, vector[vector[float]]& transform)
+    void AddSample(const float t, const vector[vector[float]]& transform)
 
 cdef class PyglSamplingAnimator:
   cdef SamplingAnimator* instance
@@ -211,7 +211,7 @@ cdef class PyglSamplingAnimator:
     del self.instance
 
   def add_sample(self, t, transform):
-    transform = np.array(transform, dtype=np.float32).tolist()
+    transform = np.asarray(transform, dtype=np.float32).tolist()
     self.instance.AddSample(t, transform)
 
 # Viewer.

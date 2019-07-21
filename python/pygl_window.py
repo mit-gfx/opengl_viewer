@@ -64,15 +64,14 @@ class PyglShape(object):
 
     self.animator = None
 
-  def set_trs_transform(self, time, translation=[0, 0, 0],
+  def set_trs_transform(self, time, translation=(0, 0, 0),
                         rotation=np.eye(3),
                         scaling=1):
     if self.animator is None:
       self.animator = PyglSamplingAnimator(-1)
     mat = np.eye(4)
-    translation = np.array(translation, dtype=np.float32)
-    rotation = np.array(rotation, dtype=np.float32)
-    scaling = np.array(scaling)
+    rotation = np.asarray(rotation, dtype=np.float32)
+    scaling = np.asarray(scaling)
     if scaling.size == 1:
       scaling = np.array([scaling, scaling, scaling])
     mat[:3, :3] = rotation @ np.diag(scaling)
@@ -80,7 +79,7 @@ class PyglShape(object):
     self.animator.add_sample(time, mat)
 
 class PyglWindow(object):
-  def __init__(self, name, fps, xyz='xyz', record=False):
+  def __init__(self, name, fps, xyz='xyz', height=800, width=1280, record=False):
     self.shapes = []
 
     # For recording data.
@@ -95,8 +94,8 @@ class PyglWindow(object):
 
     # Initialize the viewer.
     option = PyglOption()
-    option["height"] = 1000
-    option["width"] = 1600
+    option["height"] = height
+    option["width"] = width
     option["background color"] = [0.86, 0.88, 0.90, 1.0]
     option["camera aspect ratio"] = 1600 / 1000
     if xyz == 'ned':
@@ -166,7 +165,7 @@ class PyglWindow(object):
     self.viewer.add_static_point_light(light_pos, light_option)
 
   def render_shape(self, vertex, face,
-                   translation=[0, 0, 0],
+                   translation=(0, 0, 0),
                    rotation=np.eye(3),
                    scaling=1,
                    color='r'):
@@ -182,8 +181,8 @@ class PyglWindow(object):
     self.shapes.append(shape)
     return self.shapes[-1]
 
-  def render_sphere(self, center=[0, 0, 0], radius=1,
-                    translation=[0, 0, 0],
+  def render_sphere(self, center=(0, 0, 0), radius=1,
+                    translation=(0, 0, 0),
                     rotation=np.eye(3),
                     scaling=1,
                     color='r'):
@@ -239,7 +238,7 @@ class PyglWindow(object):
     return self.render_shape(vertices, faces, translation, rotation, scaling, color)
 
   def render_cylinder(self, center, dir, radius, height,
-                      translation=[0, 0, 0],
+                      translation=(0, 0, 0),
                       rotation=np.eye(3),
                       scaling=1,
                       color='r'):
@@ -274,7 +273,7 @@ class PyglWindow(object):
     return self.render_shape(vertices, faces, translation, rotation, scaling, color)
 
   def render_cube(self, center, size,
-                  translation=[0, 0, 0],
+                  translation=(0, 0, 0),
                   rotation=np.eye(3),
                   scaling=1, color='r'):
     vertices = np.array([
@@ -304,7 +303,7 @@ class PyglWindow(object):
     return self.render_shape(vertices, faces, translation, rotation, scaling, color)
 
   def render_arrow(self, tip, tail, radius=0.012, tip_length=0.15, tip_radius=0.024,
-                   translation=[0, 0, 0],
+                   translation=(0, 0, 0),
                    rotation=np.eye(3),
                    scaling=1, color='r'):
     tip = np.array(tip, dtype=np.float32)
@@ -330,7 +329,7 @@ class PyglWindow(object):
     return self.render_shape(v_arrow, f_arrow, translation, rotation, scaling, color)
 
   def render_cone(self, center, dir, radius, height,
-                  translation=[0, 0, 0],
+                  translation=(0, 0, 0),
                   rotation=np.eye(3),
                   scaling=1,
                   color='r'):
@@ -368,6 +367,9 @@ class PyglWindow(object):
     self.viewer.cleanup()
 
   def export_video(self, name):
+    if not self.record_folder:
+      print('Cannot export videos. Please set record=True when creating PyglWindow.')
+      sys.exit(0)
     if '.gif' in name:
       export_gif(name, self.record_folder)
     elif '.mov' in name:

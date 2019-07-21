@@ -4,7 +4,7 @@ from pygl_window import PyglWindow
 
 # Initialization.
 fps = 30
-window = PyglWindow(name='monocopter', fps=fps, xyz='ned', record=True)
+window = PyglWindow(name='monocopter', fps=fps, xyz='ned', height=800, width=1280, record=True)
 
 # Draw the world coordinates.
 window.render_arrow(tip=[0.5, 0, 0], tail=[0, 0, 0], color='r')
@@ -27,7 +27,7 @@ prop = window.render_shape(prop_mesh.vertices, prop_mesh.faces,
                            color=[0.001, 0.564, 0.193])
 prop_local_translate=np.array([-0.24, 0.15, 0])
 
-max_frame = 256
+max_frame = 32
 for f in range(max_frame):
   t = f / fps
   copter_translate = np.array([0, np.sin(t / 10), -t / 25], dtype=np.float32)
