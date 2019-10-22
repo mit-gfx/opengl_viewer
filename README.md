@@ -51,7 +51,7 @@ For macOS:
 ## How to build
 
 ### Windows (Windows 10 64bit + Visual Studio 2017)
-* Create an empyt `build` folder under the root directory of this project.
+* Create an empty `build` folder under the root directory of this project.
 * Open CMake and set this folder as the source folder.
 * Click "Configure", then "Generate", then "Open Project".
 * Press `F7` to build. Hopefully no errors will occur.
