@@ -1,5 +1,7 @@
 # Download and unzip Eigen because Eigen does ont have an official github repo
 # that we can add as a submodule.
+# Tls12 is needed to successfully download Eigen.
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 wget http://bitbucket.org/eigen/eigen/get/3.3.4.zip -OutFile Eigen.3.3.4.zip
 Expand-Archive Eigen.3.3.4.zip -DestinationPath externals
 # Rename the folder.
