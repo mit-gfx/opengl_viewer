@@ -20,7 +20,7 @@ setup(
                              "../build/externals/libimgui.a",
                              "../build/externals/libglew.a",
                              "../build/externals/glfw/src/libglfw3.a"],
-              libraries=["GL", "glut", "X11", "Xi", "Xrandr", "Xxf86vm", "Xinerama", "Xcursor", "rt", "m", "pthread", "dl"],
+              libraries=["GL", "X11", "Xi", "Xrandr", "Xxf86vm", "Xinerama", "Xcursor", "rt", "m", "pthread", "dl"],
               extra_compile_args=["-std=c++11"]),
   ),
 )
