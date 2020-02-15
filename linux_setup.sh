@@ -2,7 +2,8 @@
 
 # Download and unzip Eigen because Eigen does ont have an official github repo
 # that we can add as a submodule.
-wget http://bitbucket.org/eigen/eigen/get/3.3.4.zip
+wget https://bitbucket.org/eigen/eigen/get/3.3.4.zip --header "Referer: bitbucket.org"
+
 unzip 3.3.4.zip -d externals
 # Rename the folder.
 mv externals/eigen-eigen-5a0156e40feb externals/eigen
