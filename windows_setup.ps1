@@ -2,11 +2,11 @@
 # that we can add as a submodule.
 # Tls12 is needed to successfully download Eigen.
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-wget http://bitbucket.org/eigen/eigen/get/3.3.4.zip -OutFile Eigen.3.3.4.zip
-Expand-Archive Eigen.3.3.4.zip -DestinationPath externals
+wget https://gitlab.com/libeigen/eigen/-/archive/3.3.8/eigen-3.3.8.zip -OutFile Eigen.3.3.8.zip
+Expand-Archive Eigen.3.3.8.zip -DestinationPath externals
 # Rename the folder.
-mv externals/eigen-eigen-5a0156e40feb externals/eigen
-rm Eigen.3.3.4.zip
+mv externals/eigen-3.3.8 externals/eigen
+rm Eigen.3.3.8.zip
 
 # Download and unzip GLEW because building from the source is a huge pain, as
 # suggested in their website.
