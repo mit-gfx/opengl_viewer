@@ -2,11 +2,11 @@
 
 # Download and unzip Eigen because Eigen does ont have an official github repo
 # that we can add as a submodule.
-curl -LOk http://bitbucket.org/eigen/eigen/get/3.3.4.zip
-unzip 3.3.4.zip -d externals
+curl -LOk https://gitlab.com/libeigen/eigen/-/archive/3.3.4/eigen-3.3.4.zip
+unzip eigen-3.3.4.zip -d externals
 # Rename the folder.
-mv externals/eigen-eigen-5a0156e40feb externals/eigen
-rm 3.3.4.zip
+mv externals/eigen-3.3.4 externals/eigen
+rm eigen-3.3.4.zip
 
 # Download and unzip GLEW because building from the source is a huge pain, as
 # suggested in their website.
